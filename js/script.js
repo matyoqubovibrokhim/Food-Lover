@@ -1,31 +1,30 @@
-document.addEventListener('DOMContentLoaded', () =>{
+document.addEventListener('DOMContentLoaded', () => {
 	//Tabs
 	const tabs = document.querySelectorAll('.tabheader__item'),
 		tabParents = document.querySelector('.tabheader__items'),
 		tabContents = document.querySelectorAll('.tab_content')
 
-
-	function hideTabContents(){
-		tabContents.forEach(tabContent =>{
+	function hideTabContents() {
+		tabContents.forEach(tabContent => {
 			tabContent.classList.add('hide')
 			tabContent.classList.remove('show')
 		})
 
-		tabs.forEach(tab => tab.classList.remove('tabheader__item_active') )
+		tabs.forEach(tab => tab.classList.remove('tabheader__item_active'))
 	}
 
-	function showTabContent(index = 0){
+	function showTabContent(index = 0) {
 		tabContents[index].classList.add('show', 'fade')
 		tabContents[index].classList.remove('hide')
 		tabs[index].classList.add('tabheader__item_active')
 	}
 
-	tabParents.addEventListener('click', event =>{
+	tabParents.addEventListener('click', event => {
 		const target = event.target
 
-		if(target && target.classList.contains('tabheader__item')){
-			tabs.forEach((tab, index) =>{
-				if(target === tab){
+		if (target && target.classList.contains('tabheader__item')) {
+			tabs.forEach((tab, index) => {
+				if (target === tab) {
 					hideTabContents()
 					showTabContent(index)
 				}
@@ -39,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () =>{
 	// Loader
 	const loaderWrapper = document.querySelector('.loader-wrapper')
 
-	setTimeout(() =>{
+	setTimeout(() => {
 		loaderWrapper.style.display = 'none'
 	}, 1300)
 
@@ -105,4 +104,46 @@ document.addEventListener('DOMContentLoaded', () =>{
 	}
 
 	setClock('.timer', deadline)
+
+	// Modal
+	const modalOpenBtns = document.querySelectorAll('[data-modal]'),
+		modal = document.querySelector('.modal'),
+		modalContent = modal.querySelector('.modal__content'),
+		modalCloseBtn = document.querySelector('[data-close-modal]')
+
+		function openModal() {
+			modalContent.classList.add('modal-fade')
+			modal.classList.add('show')
+			modal.classList.remove('hide')
+			document.body.style.overflow = 'hidden'
+			clearInterval(modalTimerId)
+		}
+
+		function closeModal(){
+			modal.classList.add('hide')
+			modal.classList.remove('show')
+			document.body.style.overflow = ''
+		}
+
+		modalOpenBtns.forEach(btn =>{
+			btn.addEventListener('click', openModal)
+		})
+
+		modalCloseBtn.addEventListener('click', closeModal)
+
+		modal.addEventListener('click', event =>{
+			if(event.target === modal ){
+				closeModal()
+			}
+		})
+
+		document.body.addEventListener('keydown', event =>{
+			if(event.code === 'Escape' && modal.classList.contains('show')){
+				closeModal()
+			}
+		})
+
+		const modalTimerId = setTimeout(() => {
+			openModal()
+		}, 4000);
 })
