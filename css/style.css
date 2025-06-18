@@ -682,6 +682,7 @@ form button {
 .modal__dialog {
 	max-width: 500px;
 	margin: 40px auto;
+	max-height: 290px;
 }
 .modal__content {
 	position: relative;
