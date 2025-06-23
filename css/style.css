@@ -898,6 +898,8 @@ form button {
 	display: inline-block;
 	box-sizing: border-box;
 	animation: rotation 1s linear infinite;
+	display: block;
+	margin: 0 auto;
 }
 
 @keyframes rotation {
