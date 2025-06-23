@@ -107,8 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Modal
 	const modalOpenBtns = document.querySelectorAll('[data-modal]'),
 		modal = document.querySelector('.modal'),
-		modalContent = modal.querySelector('.modal__content'),
-		modalCloseBtn = document.querySelector('[data-close-modal]')
+		modalContent = modal.querySelector('.modal__content')
 
 		function openModal() {
 			modalContent.classList.add('modal-fade')
@@ -128,10 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			btn.addEventListener('click', openModal)
 		})
 
-		modalCloseBtn.addEventListener('click', closeModal)
 
 		modal.addEventListener('click', event =>{
-			if(event.target === modal ){
+			if(event.target === modal || event.target.getAttribute('data-close-modal') === ''){
 				closeModal()
 			}
 		})
@@ -147,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}, 4000);
 
 		// Class
-		class Menu{
+		class InfoCard{
 			constructor(src, alt, title, descr, discount, sale, parentSelector){
 				this.src = src
 				this.alt = alt
@@ -165,13 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
 					<div>
 						<h3>${this.title}</h3>
 						<p>${this.descr}</p>
-						<p><del>$${this.discount}.00</del> <span class="primary-text">$${this.sale}.00</span></p>
+						<p><del>${this.discount}</del> <span class="primary-text">${this.sale}</span></p>
 					</div>
 				`
 
 				this.parent.append(element)
 			}
-
+			
 			daytimeRender(){
 				const element = document.createElement('div')
 				element.classList.add('daytime-item')
@@ -185,67 +183,148 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		const offers = [
-			{
-				src: "./img/offer1.png",
-				alt: "Quattro Pasta",
-				title: "Quattro Pasta",
-				descr: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam, quibusdam.",
-				discount: 55,
-				sale: 18,
-			},
-			{
-				src: "./img/offer2.png",
-				alt: "Vegertarian Pasta",
-				title: "Vegertarian Pasta",
-				descr: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam, quibusdam.",
-				discount: 65,
-				sale: 20,
-			},
-			{
-				src: "./img/offer3.png",
-				alt: "Gluten-Free Pasta",
-				title: "Gluten-Free Pasta",
-				descr: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nam, quibusdam.",
-				discount: 25,
-				sale: 15,
-			},
-		]
+		fetch('http://localhost:3000/offers', {
+			method: 'GET',
+			headers: {'Content-type' : 'application/json'}
+		})
+			.then(response => response.json())
+			.then(data =>{
+				data.forEach(offer =>{
+					const {src, alt, title, descr, discount, sale} = offer
+					new InfoCard(src, alt, title, descr, discount, sale, '.offers-items').offerRender()
+				})
+			})
+			.catch(error => console.log(error))
 
-		const daytimes = [
-			{
-				src: "./img/breckfastIcon.png",
-				alt: "Breakfast",
-				title: "Breakfast",
-				descr: "8:00 am to 10:00 am",
-			},
-			{
-				src: "./img/lunchIcon.png",
-				alt: "Lunch",
-				title: "Lunch",
-				descr: "4:00 pm to 7:00 pm",
-			},
-			{
-				src: "./img/dinnerIcon.png",
-				alt: "Dinner",
-				title: "Dinner",
-				descr: "9:00 pm to 1:00 Am",
-			},
-			{
-				src: "./img/dessertIcon.png",
-				alt: "Dessert",
-				title: "Dessert",
-				descr: "All day",
-			},
-		]
+		fetch('http://localhost:3000/daytimes', {
+			method: 'GET',
+			headers: {'Content-type' : 'application/json'}
+		})
+			.then(response => response.json())
+			.then(data =>{
+				data.forEach(daytime =>{
+					const {src, alt, title, descr, discount = null, sale = null} = daytime
+					new InfoCard(src, alt, title, descr, discount, sale, '.daytime-items').daytimeRender()
+				})
+			})
+			.catch(error => console.log(error))
+		class Menu{
+			constructor(src, alt, title, sale, descr, parentSelector){
+				this.src = src
+				this.alt = alt
+				this.title = title
+				this.sale = sale
+				this.descr = descr
+				this.parent = document.querySelector(parentSelector)
+			}
 
-		offers.forEach(offer =>{
-			const {src, alt, title, descr, discount, sale} = offer
-			new Menu(src, alt, title, descr, discount, sale, '.offers-items').offerRender()
+			menuRender(){
+				const element = document.createElement('div')
+				element.classList.add('menu-item')
+				element.innerHTML = `
+					<img src=${this.src} alt=${this.alt}>
+					<div>
+						<h3>${this.title} <span class="primary-text">${this.sale}</span></h3>
+						<p>${this.descr}</p>
+					</div>
+				`
+
+				this.parent.append(element)
+			}
+		}
+
+		fetch('http://localhost:3000/leftMenuData', {
+			method: 'GET',
+			headers: {'Content-type' : 'application/json'}
+		})
+			.then(response => response.json())
+			.then(data =>{
+				data.forEach(item =>{
+					const {src, alt, title, sale, descr} = item
+					new Menu(src, alt, title, sale, descr, '.menu-items-left').menuRender()
+				})
+			})
+			.catch(error => console.log(error))
+
+		fetch('http://localhost:3000/rightMenuData', {
+			method: 'GET',
+			headers: {'Content-type' : 'application/json'}
+		})
+			.then(response => response.json())
+			.then(data =>{
+				data.forEach(item =>{
+					const {src, alt, title, sale, descr} = item
+					new Menu(src, alt, title, sale, descr, '.menu-items-right').menuRender()
+				})
+			})
+			.catch(error => console.log(error))
+
+		// FORM
+		const form = document.querySelector('form'),
+			telegramTokenBot = '7824698756:AAFdqLjnyXvQ9x-6z_vsVAFI3DbpK0dsyG4',
+			chatId = '5553761029'
+
+		const message = {
+			loading: 'Loading...',
+			success: 'Thanks for contacting with us',
+			failure: 'Something went wrong',
+		}
+
+		form.addEventListener('submit', event =>{
+			event.preventDefault()
+
+			const loader = document.createElement('div')
+			loader.classList.add('loader')
+			loader.style.width = '25px'
+			loader.style.height = '25px'
+			loader.style.marginTop = '20px'
+
+			form.append(loader)
+
+			const formData = new FormData(form)
+
+			const object = {}
+			formData.forEach((value, key) =>{
+				object[key] = value
+			})
+
+			fetch(`https://api.telegram.org/bot${telegramTokenBot}/sendMessage`, {
+				method: 'POST',
+				headers: {'Content-type' : 'application/json'},
+				body: JSON.stringify({
+					chat_id: chatId,
+					text: `Name: ${object.name}, Phone: ${object.phone}`
+				})
+			})
+			 .then(() => {
+					showStatusMessage(message.success)
+					form.reset()
+			 })
+			 .catch(() => showStatusMessage(message.failure))
+			 .finally(() => loader.remove())
 		})
 
-		daytimes.forEach(daytime =>{
-			const {src, alt, title, descr, discount = null, sale = null} = daytime
-			new Menu(src, alt, title, descr, discount, sale, '.daytime-items').daytimeRender()
-		})
+		function showStatusMessage(message){
+			const modalDialog = document.querySelector('.modal__dialog')
+
+			modalDialog.classList.add('hide')
+			openModal()
+
+			const statusModal = document.createElement('div')
+			statusModal.classList.add('modal__dialog')
+			statusModal.innerHTML = `
+				<div class="modal__content">
+					<div data-close-modal class="modal__close">&times;</div>
+					<div class="modal__title">${message}</div>
+				</div>
+			`
+
+			document.querySelector('.modal').append(statusModal)
+
+			setTimeout(() => {
+				statusModal.remove()
+				modalDialog.classList.remove('hide')
+				closeModal()
+			}, 2000);
+		}
 })
