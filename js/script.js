@@ -1,3 +1,5 @@
+'use strict'
+
 document.addEventListener('DOMContentLoaded', () => {
 	//Tabs
 	const tabs = document.querySelectorAll('.tabheader__item'),
@@ -43,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}, 1300)
 
 	// Timer
-	const deadline = new Date('2025-07-01')
+	const deadline = new Date('2025-08-30')
 
 	function getTimeRemaining(endtime) {
 		let days, hours, minutes, seconds
@@ -109,56 +111,58 @@ document.addEventListener('DOMContentLoaded', () => {
 		modal = document.querySelector('.modal'),
 		modalContent = modal.querySelector('.modal__content')
 
-		function openModal() {
-			modalContent.classList.add('modal-fade')
-			modal.classList.add('show')
-			modal.classList.remove('hide')
-			document.body.style.overflow = 'hidden'
-			clearInterval(modalTimerId)
+	function openModal() {
+		modalContent.classList.add('modal-fade')
+		modal.classList.add('show')
+		modal.classList.remove('hide')
+		document.body.style.overflow = 'hidden'
+		clearInterval(modalTimerId)
+	}
+
+	function closeModal() {
+		modal.classList.add('hide')
+		modal.classList.remove('show')
+		document.body.style.overflow = ''
+	}
+
+	modalOpenBtns.forEach(btn => {
+		btn.addEventListener('click', openModal)
+	})
+
+	modal.addEventListener('click', event => {
+		if (
+			event.target === modal ||
+			event.target.getAttribute('data-close-modal') === ''
+		) {
+			closeModal()
+		}
+	})
+
+	document.body.addEventListener('keydown', event => {
+		if (event.code === 'Escape' && modal.classList.contains('show')) {
+			closeModal()
+		}
+	})
+
+	const modalTimerId = setTimeout(() => {
+		openModal()
+	}, 500000)
+
+	// Class
+	class InfoCard {
+		constructor(src, alt, title, descr, discount, sale, parentSelector) {
+			this.src = src
+			this.alt = alt
+			this.title = title
+			this.descr = descr
+			this.discount = discount
+			this.sale = sale
+			this.parent = document.querySelector(parentSelector)
 		}
 
-		function closeModal(){
-			modal.classList.add('hide')
-			modal.classList.remove('show')
-			document.body.style.overflow = ''
-		}
-
-		modalOpenBtns.forEach(btn =>{
-			btn.addEventListener('click', openModal)
-		})
-
-
-		modal.addEventListener('click', event =>{
-			if(event.target === modal || event.target.getAttribute('data-close-modal') === ''){
-				closeModal()
-			}
-		})
-
-		document.body.addEventListener('keydown', event =>{
-			if(event.code === 'Escape' && modal.classList.contains('show')){
-				closeModal()
-			}
-		})
-
-		const modalTimerId = setTimeout(() => {
-			openModal()
-		}, 4000);
-
-		// Class
-		class InfoCard{
-			constructor(src, alt, title, descr, discount, sale, parentSelector){
-				this.src = src
-				this.alt = alt
-				this.title = title
-				this.descr = descr
-				this.discount = discount
-				this.sale = sale
-				this.parent = document.querySelector(parentSelector)
-			}
-
-			offerRender(){
-				const element = document.createElement('div')
-				element.innerHTML = `
+		offerRender() {
+			const element = document.createElement('div')
+			element.innerHTML = `
 					<img src=${this.src} alt=${this.alt}>
 					<div>
 						<h3>${this.title}</h3>
@@ -167,61 +171,77 @@ document.addEventListener('DOMContentLoaded', () => {
 					</div>
 				`
 
-				this.parent.append(element)
-			}
-			
-			daytimeRender(){
-				const element = document.createElement('div')
-				element.classList.add('daytime-item')
-				element.innerHTML = `
+			this.parent.append(element)
+		}
+
+		daytimeRender() {
+			const element = document.createElement('div')
+			element.classList.add('daytime-item')
+			element.innerHTML = `
 					<img src=${this.src} alt=${this.alt}>
 					<h3>${this.title}</h3>
 					<p>${this.descr}</p>
 				`
 
-				this.parent.append(element)
-			}
+			this.parent.append(element)
+		}
+	}
+
+	fetch('http://localhost:3000/offers', {
+		method: 'GET',
+		headers: { 'Content-type': 'application/json' },
+	})
+		.then(response => response.json())
+		.then(data => {
+			data.forEach(offer => {
+				const { src, alt, title, descr, discount, sale } = offer
+				new InfoCard(
+					src,
+					alt,
+					title,
+					descr,
+					discount,
+					sale,
+					'.offers-items'
+				).offerRender()
+			})
+		})
+		.catch(error => console.log(error))
+
+	fetch('http://localhost:3000/daytimes', {
+		method: 'GET',
+		headers: { 'Content-type': 'application/json' },
+	})
+		.then(response => response.json())
+		.then(data => {
+			data.forEach(daytime => {
+				const { src, alt, title, descr, discount = null, sale = null } = daytime
+				new InfoCard(
+					src,
+					alt,
+					title,
+					descr,
+					discount,
+					sale,
+					'.daytime-items'
+				).daytimeRender()
+			})
+		})
+		.catch(error => console.log(error))
+	class Menu {
+		constructor(src, alt, title, sale, descr, parentSelector) {
+			this.src = src
+			this.alt = alt
+			this.title = title
+			this.sale = sale
+			this.descr = descr
+			this.parent = document.querySelector(parentSelector)
 		}
 
-		fetch('http://localhost:3000/offers', {
-			method: 'GET',
-			headers: {'Content-type' : 'application/json'}
-		})
-			.then(response => response.json())
-			.then(data =>{
-				data.forEach(offer =>{
-					const {src, alt, title, descr, discount, sale} = offer
-					new InfoCard(src, alt, title, descr, discount, sale, '.offers-items').offerRender()
-				})
-			})
-			.catch(error => console.log(error))
-
-		fetch('http://localhost:3000/daytimes', {
-			method: 'GET',
-			headers: {'Content-type' : 'application/json'}
-		})
-			.then(response => response.json())
-			.then(data =>{
-				data.forEach(daytime =>{
-					const {src, alt, title, descr, discount = null, sale = null} = daytime
-					new InfoCard(src, alt, title, descr, discount, sale, '.daytime-items').daytimeRender()
-				})
-			})
-			.catch(error => console.log(error))
-		class Menu{
-			constructor(src, alt, title, sale, descr, parentSelector){
-				this.src = src
-				this.alt = alt
-				this.title = title
-				this.sale = sale
-				this.descr = descr
-				this.parent = document.querySelector(parentSelector)
-			}
-
-			menuRender(){
-				const element = document.createElement('div')
-				element.classList.add('menu-item')
-				element.innerHTML = `
+		menuRender() {
+			const element = document.createElement('div')
+			element.classList.add('menu-item')
+			element.innerHTML = `
 					<img src=${this.src} alt=${this.alt}>
 					<div>
 						<h3>${this.title} <span class="primary-text">${this.sale}</span></h3>
@@ -229,102 +249,104 @@ document.addEventListener('DOMContentLoaded', () => {
 					</div>
 				`
 
-				this.parent.append(element)
-			}
+			this.parent.append(element)
 		}
+	}
 
-		fetch('http://localhost:3000/leftMenuData', {
-			method: 'GET',
-			headers: {'Content-type' : 'application/json'}
+	fetch('http://localhost:3000/leftMenuData', {
+		method: 'GET',
+		headers: { 'Content-type': 'application/json' },
+	})
+		.then(response => response.json())
+		.then(data => {
+			data.forEach(item => {
+				const { src, alt, title, sale, descr } = item
+				new Menu(src, alt, title, sale, descr, '.menu-items-left').menuRender()
+			})
 		})
-			.then(response => response.json())
-			.then(data =>{
-				data.forEach(item =>{
-					const {src, alt, title, sale, descr} = item
-					new Menu(src, alt, title, sale, descr, '.menu-items-left').menuRender()
-				})
-			})
-			.catch(error => console.log(error))
+		.catch(error => console.log(error))
 
-		fetch('http://localhost:3000/rightMenuData', {
-			method: 'GET',
-			headers: {'Content-type' : 'application/json'}
+	fetch('http://localhost:3000/rightMenuData', {
+		method: 'GET',
+		headers: { 'Content-type': 'application/json' },
+	})
+		.then(response => response.json())
+		.then(data => {
+			data.forEach(item => {
+				const { src, alt, title, sale, descr } = item
+				new Menu(src, alt, title, sale, descr, '.menu-items-right').menuRender()
+			})
 		})
-			.then(response => response.json())
-			.then(data =>{
-				data.forEach(item =>{
-					const {src, alt, title, sale, descr} = item
-					new Menu(src, alt, title, sale, descr, '.menu-items-right').menuRender()
-				})
-			})
-			.catch(error => console.log(error))
+		.catch(error => console.log(error))
 
-		// FORM
-		const form = document.querySelector('form'),
-			telegramTokenBot = '7824698756:AAFdqLjnyXvQ9x-6z_vsVAFI3DbpK0dsyG4',
-			chatId = '5553761029'
+	// FORM
+	const form = document.querySelector('form'),
+		telegramTokenBot = '7824698756:AAFdqLjnyXvQ9x-6z_vsVAFI3DbpK0dsyG4',
+		chatId = '5553761029'
 
-		const message = {
-			loading: 'Loading...',
-			success: 'Thanks for contacting with us',
-			failure: 'Something went wrong',
-		}
+	const message = {
+		loading: 'Loading...',
+		success: 'Thanks for contacting with us',
+		failure: 'Something went wrong',
+	}
 
-		form.addEventListener('submit', event =>{
-			event.preventDefault()
+	form.addEventListener('submit', event => {
+		event.preventDefault()
 
-			const loader = document.createElement('div')
-			loader.classList.add('loader')
-			loader.style.width = '25px'
-			loader.style.height = '25px'
-			loader.style.marginTop = '20px'
+		const loader = document.createElement('div')
+		loader.classList.add('loader')
+		loader.style.width = '25px'
+		loader.style.height = '25px'
+		loader.style.marginTop = '20px'
 
-			form.append(loader)
+		form.append(loader)
 
-			const formData = new FormData(form)
+		const formData = new FormData(form)
 
-			const object = {}
-			formData.forEach((value, key) =>{
-				object[key] = value
-			})
-
-			fetch(`https://api.telegram.org/bot${telegramTokenBot}/sendMessage`, {
-				method: 'POST',
-				headers: {'Content-type' : 'application/json'},
-				body: JSON.stringify({
-					chat_id: chatId,
-					text: `Name: ${object.name}, Phone: ${object.phone}`
-				})
-			})
-			 .then(() => {
-					showStatusMessage(message.success)
-					form.reset()
-			 })
-			 .catch(() => showStatusMessage(message.failure))
-			 .finally(() => loader.remove())
+		const object = {}
+		formData.forEach((value, key) => {
+			object[key] = value
 		})
 
-		function showStatusMessage(message){
-			const modalDialog = document.querySelector('.modal__dialog')
+		fetch(`https://api.telegram.org/bot${telegramTokenBot}/sendMessage`, {
+			method: 'POST',
+			headers: { 'Content-type': 'application/json' },
+			body: JSON.stringify({
+				chat_id: chatId,
+				text: `Name: ${object.name}, Phone: ${object.phone}`,
+			}),
+		})
+			.then(() => {
+				showStatusMessage(message.success)
+				form.reset()
+			})
+			.catch(() => showStatusMessage(message.failure))
+			.finally(() => loader.remove())
+	})
 
-			modalDialog.classList.add('hide')
-			openModal()
+	function showStatusMessage(message) {
+		const modalDialog = document.querySelector('.modal__dialog')
 
-			const statusModal = document.createElement('div')
-			statusModal.classList.add('modal__dialog')
-			statusModal.innerHTML = `
+		modalDialog.classList.add('hide')
+		openModal()
+
+		const statusModal = document.createElement('div')
+		statusModal.classList.add('modal__dialog')
+		statusModal.innerHTML = `
 				<div class="modal__content">
 					<div data-close-modal class="modal__close">&times;</div>
 					<div class="modal__title">${message}</div>
 				</div>
 			`
 
-			document.querySelector('.modal').append(statusModal)
+		document.querySelector('.modal').append(statusModal)
 
-			setTimeout(() => {
-				statusModal.remove()
-				modalDialog.classList.remove('hide')
-				closeModal()
-			}, 2000);
-		}
+		setTimeout(() => {
+			statusModal.remove()
+			modalDialog.classList.remove('hide')
+			closeModal()
+		}, 2000)
+	}
+
+	// SLIDER
 })
