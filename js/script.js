@@ -11,7 +11,7 @@ import timer from './modules/timer'
 document.addEventListener('DOMContentLoaded', () => {
 	const modalTimerId = setTimeout(
 		() => openModal('.modal__content', '.modal', modalTimerId),
-		500000
+		5000
 	)
 
 	tabs('.tabheader__item', '.tab_content', '.tabheader__items')
