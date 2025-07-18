@@ -1,26 +1,19 @@
 {
-  "name": "food-lover",
-  "version": "1.0.0",
-  "description": "",
-  "homepage": "https://github.com/matyoqubovibrokhim/Food-Lover#readme",
-  "bugs": {
-    "url": "https://github.com/matyoqubovibrokhim/Food-Lover/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/matyoqubovibrokhim/Food-Lover.git"
-  },
-  "license": "ISC",
-  "author": "Ibrokhim Matyoqubov",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "dependencies": {
-    "json-server": "^1.0.0-beta.3"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.29.0",
-    "eslint": "^9.29.0",
-    "globals": "^16.2.0"
-  }
+	"name": "food-lover",
+	"version": "1.0.0",
+	"description": "",
+	"license": "ISC",
+	"author": "Ibrokhim Matyoqubov",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"dependencies": {
+		"json-server": "^1.0.0-beta.3"
+	},
+	"devDependencies": {
+		"eslint": "^8.56.0",
+		"globals": "^16.2.0",
+		"webpack": "^5.100.2",
+		"webpack-cli": "^6.0.1"
+	}
 }
