@@ -2,8 +2,8 @@ import { closeModal, openModal } from './modal'
 
 function forms(formSelector, modalTimerId) {
 	const form = document.querySelector(formSelector),
-		telegramTokenBot = '1434344562:AAFdqLjnyXvQ9x-6z_vsVAFI3DbpK0dsyG4', // your real telegram tokenBot
-		chatId = '1434344562' // your telegram bot chatId
+		telegramTokenBot = 'YOUR_BOT_TOKEN', // your real telegram tokenBot
+		chatId = 'YOUR_CHAT_ID' // your telegram bot chatId
 
 	const message = {
 		loading: 'Loading...',
